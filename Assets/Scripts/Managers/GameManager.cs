@@ -3,6 +3,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private HarvestUI _ui;
+    [SerializeField] private PlayerController _player;
     private static GameManager instance;
 
     private void Awake()
@@ -24,6 +25,11 @@ public class GameManager : MonoBehaviour
     public HarvestUI GetUI 
     {
         get { return _ui; }
+    }
+
+    public PlayerController GetPlayer 
+    {
+        get { return _player; }
     }
 
     public static GameManager GetInstance

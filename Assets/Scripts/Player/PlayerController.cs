@@ -4,10 +4,13 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D _body;
     private float _inputDirection;
+    private float _lastInputDirection;
     private bool _actionPressed = false;
     private bool _jumpPressed = false;
     private bool _dashPressed = false;
     private bool _startMoving = false;
+    private bool _isGravityOn = true;
+
     [SerializeField] private bool _isGrounded = true;
 
     private void Awake() 
@@ -17,19 +20,45 @@ public class PlayerController : MonoBehaviour
 
     private void Update() 
     {
-        _inputDirection = Input.GetAxisRaw("Horizontal");
-        _actionPressed = Input.GetKey(KeyCode.E);
-        _jumpPressed = Input.GetButtonDown("Jump");
-        _dashPressed = Input.GetButtonDown("Fire3");
-
-        Debug.DrawRay(transform.position, transform.up * -1 * 0.2f, Color.magenta);
-        _isGrounded = Physics2D.Raycast(transform.position, transform.up * -1, 0.2f);
+        InputDetection();
+        GroundCheck();
     }
 
     private void FixedUpdate() 
     {
         if (_startMoving)
             MoveByInput();
+    }
+
+    private void InputDetection()
+    {
+        if (_inputDirection != 0)
+            _lastInputDirection = _inputDirection;
+
+        _inputDirection = Input.GetAxisRaw("Horizontal");
+
+        _actionPressed = Input.GetKey(KeyCode.E);
+        _jumpPressed = Input.GetButtonDown("Jump");
+        _dashPressed = Input.GetButtonDown("Fire3");
+    }
+
+    private void GroundCheck()
+    {
+        Debug.DrawRay(transform.position, transform.up * -1 * 0.2f, Color.magenta);
+        _isGrounded = Physics2D.Raycast(transform.position, transform.up * -1, 0.2f);
+    }
+
+    public void ToggleGravity()
+    {
+        _isGravityOn = !_isGravityOn;
+
+        if (_isGravityOn)
+        {
+            _body.gravityScale = 1;
+        }else{
+            _body.velocity = Vector2.zero;
+            _body.gravityScale = 0;
+        }
     }
 
     public void MoveByInput()
@@ -44,12 +73,8 @@ public class PlayerController : MonoBehaviour
 
     public void Dash()
     {
-        int facing = 1;
-        if (_inputDirection == -1)
-            facing = -1;
-
         //Debug.DrawRay(transform.position, Vector2.right * _inputDirection * 20, Color.magenta, 3);
-        _body.AddForce(Vector2.right * facing * 8, ForceMode2D.Impulse);
+        _body.AddForce(new Vector2(5,0) * _lastInputDirection, ForceMode2D.Impulse);
     }
 
     public bool IsGrounded 

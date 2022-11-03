@@ -11,6 +11,7 @@ public class PlayerDashState : StateMachineBehaviour
             _controller = animator.transform.GetComponent<PlayerController>();
         }
 
+        _controller.ToggleGravity();
         _controller.Dash();
     }
 
@@ -21,6 +22,6 @@ public class PlayerDashState : StateMachineBehaviour
 
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-       return;
+       _controller.ToggleGravity();
     }
 }

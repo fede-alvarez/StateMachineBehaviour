@@ -77,6 +77,11 @@ public class PlayerController : MonoBehaviour
         _body.AddForce(new Vector2(5,0) * _lastInputDirection, ForceMode2D.Impulse);
     }
 
+    public void Stop()
+    {
+        _body.velocity = Vector2.zero;
+    }
+
     public bool IsGrounded 
     {
         get { return _isGrounded; }

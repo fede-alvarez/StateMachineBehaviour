@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerIdleState : StateMachineBehaviour
+public class PlayerFallState : StateMachineBehaviour
 {
     private PlayerController _controller;
     
@@ -11,23 +11,17 @@ public class PlayerIdleState : StateMachineBehaviour
             _controller = animator.transform.GetComponent<PlayerController>();
         }
 
-        _controller.Stop();
+        _controller.StartMoving = true;
     }
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (_controller.IsMoving)
-            animator.SetBool("Walking", true);
-
-        if (_controller.IsJumpPressed && _controller.IsGrounded)
-            animator.SetBool("Jump", true);
-
-        if (_controller.IsDashPressed)
-            animator.SetTrigger("Dash");
+        if (_controller.IsGrounded)
+          animator.SetBool("Jump", false);
     }
 
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-       return;
+       _controller.StartMoving = false;
     }
 }

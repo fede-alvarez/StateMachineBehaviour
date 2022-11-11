@@ -8,7 +8,9 @@ public class DialogManager : MonoBehaviour
     [SerializeField] private CanvasGroup _dialogContainer;
     [SerializeField] private TMP_Text _dialogCharacter;
     [SerializeField] private TMP_Text _dialogContent;
-    [SerializeField] private NPC[] _npcsList;
+    [SerializeField] private Transform _npcsParent;
+    [SerializeField] private Transform _optionsContainer;
+
     private Lines[] _currentLines;
     private NPC _currentNPC;
 
@@ -19,9 +21,14 @@ public class DialogManager : MonoBehaviour
     {
         _dialogContainer.alpha = 0;
 
-        foreach(NPC npc in _npcsList)
+        _optionsContainer.gameObject.SetActive(false);
+
+        foreach(Transform npc in _npcsParent)
         {
-            npc.OnPlayerInteracted += DialogStart;
+            if (npc.TryGetComponent(out NPC npcChar))
+            {
+                npcChar.OnPlayerInteracted += DialogStart;
+            }
         }
     }
 
@@ -35,12 +42,12 @@ public class DialogManager : MonoBehaviour
         
         _dialogContainer.DOFade(1, 0.5f);
         SetLine(_dialogIndex);
-
-        //StartCoroutine("Dialog");
     }
 
     private IEnumerator Dialog()
     {
+        StopCoroutine("DialogByChar");
+
         for (int i = 1; i < _dialogsCount; i++)
         {
             yield return new WaitForSeconds(2);
@@ -54,6 +61,12 @@ public class DialogManager : MonoBehaviour
 
         yield return new WaitForSeconds(2);
 
+        CloseDialog();
+    }
+
+    private void CloseDialog()
+    {
+        StopCoroutine("Dialog");
         _dialogContainer.DOFade(0, 0.5f);
         _currentNPC.IsActive = true;
     }
@@ -71,18 +84,22 @@ public class DialogManager : MonoBehaviour
     {
         for (int i = 0; i <= totalChars; i++)
         {
-            yield return new WaitForSeconds(0.08f);
+            yield return new WaitForSeconds(0.03f);
             _dialogContent.maxVisibleCharacters = i;
         }
 
-        StartCoroutine("Dialog");
+        if (_dialogIndex + 1 < _dialogsCount)
+            StartCoroutine("Dialog");
     }
 
     private void OnDestroy() 
     {
-        foreach(NPC npc in _npcsList)
+        foreach(Transform npc in _npcsParent)
         {
-            npc.OnPlayerInteracted -= DialogStart;
+            if (npc != null && npc.TryGetComponent(out NPC npcChar))
+            {
+                npcChar.OnPlayerInteracted -= DialogStart;
+            }
         }
     }
 }

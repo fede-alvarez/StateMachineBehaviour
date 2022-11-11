@@ -11,11 +11,19 @@ public class Lines
 {
     public enum Characters {
         You,
-        Pink,
-        Yellow,
-        OtherPink
+        Pink
     }
+
     public Characters Name;
     [TextArea(5,10)]
     public string DialogText;
+    
+    [Space(10)]
+    public AnswerOption[] Options;
+}
+
+[System.Serializable]
+public class AnswerOption 
+{
+    public string Answer;
 }

@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b46734a0991dd43eb9a59ce2b4c08fcf, type: 3}
-  m_Name: YellowNPCDialog
+  m_Name: PinkGiveMeBlood
   m_EditorClassIdentifier: 
   Lines:
-  - Name: 0
-    DialogText: Bye
-  - Name: 2
-    DialogText: 'Bye :D '
+  - Name: 1
+    DialogText: Dame Sangre
+    Options:
+    - Answer: Darle Sangre
+    - Answer: NO darle Sangre

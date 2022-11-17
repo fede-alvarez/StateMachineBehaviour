@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
     
 [CreateAssetMenu(fileName = "DialogsData", menuName = "My Project/Add Dialog", order = 0)]
 public class Dialogs : ScriptableObject 
@@ -26,4 +27,6 @@ public class Lines
 public class AnswerOption 
 {
     public string Answer;
+    public Dialogs NextDialog;
+    public UnityEvent OnButtonPressed;
 }

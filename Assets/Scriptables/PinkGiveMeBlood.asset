@@ -17,4 +17,6 @@ MonoBehaviour:
     DialogText: Dame Sangre
     Options:
     - Answer: Darle Sangre
+      NextDialog: {fileID: 11400000, guid: 641b34730ef74411e8219e7ae33e07f5, type: 2}
     - Answer: NO darle Sangre
+      NextDialog: {fileID: 11400000, guid: ea2aeea60a27b4155b18127e55c0f1b9, type: 2}

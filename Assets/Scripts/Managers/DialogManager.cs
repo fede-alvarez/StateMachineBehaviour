@@ -1,17 +1,27 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
-using DG.Tweening;
 using TMPro;
+using DG.Tweening;
 
 public class DialogManager : MonoBehaviour
 {
+    public delegate void DialogEnded();
+    public DialogEnded OnDialogEnded;
+
+    [Header("Setup")]
     [SerializeField] private CanvasGroup _dialogContainer;
     [SerializeField] private TMP_Text _dialogCharacter;
     [SerializeField] private TMP_Text _dialogContent;
+
+    [Header("NPCs")]
     [SerializeField] private Transform _npcsParent;
+
+    [Header("Options")]
     [SerializeField] private Transform _optionsContainer;
 
     private Lines[] _currentLines;
+    private Lines _actualLine;
     private NPC _currentNPC;
 
     private int _dialogsCount = 0;
@@ -21,7 +31,7 @@ public class DialogManager : MonoBehaviour
     {
         _dialogContainer.alpha = 0;
 
-        _optionsContainer.gameObject.SetActive(false);
+        SetOptionsActive(false);
 
         foreach(Transform npc in _npcsParent)
         {
@@ -69,12 +79,17 @@ public class DialogManager : MonoBehaviour
         StopCoroutine("Dialog");
         _dialogContainer.DOFade(0, 0.5f);
         _currentNPC.IsActive = true;
+
+        if (OnDialogEnded != null)
+            OnDialogEnded.Invoke();
     }
     
     private void SetLine(int index)
     {
-        _dialogCharacter.text = _currentLines[index].Name.ToString();
-        _dialogContent.text = _currentLines[index].DialogText;
+        _actualLine = _currentLines[index];
+
+        _dialogCharacter.text = _actualLine.Name.ToString();
+        _dialogContent.text = _actualLine.DialogText;
         _dialogContent.maxVisibleCharacters = 0;
 
         StartCoroutine("DialogByChar", _dialogContent.text.Length);
@@ -89,14 +104,79 @@ public class DialogManager : MonoBehaviour
         }
 
         if (_dialogIndex + 1 < _dialogsCount)
+        {
             StartCoroutine("Dialog");
+        }else{
+
+            if (_actualLine.Options.Length > 0) 
+            {
+                SetOptionsActive(true);
+                int index = 0;
+
+                foreach (Transform option in _optionsContainer)
+                {
+                    int j = index;
+
+                    if (option.Find("Text").TryGetComponent(out TMP_Text optionText))
+                    {
+                        optionText.text = _actualLine.Options[index].Answer;
+                    }
+
+                    if (option.TryGetComponent(out Button optionButton))
+                    {
+                        optionButton.onClick.AddListener(() => DialogAfterOptions(j));
+                    }
+
+                    index++;
+                }
+            }else{
+                yield return new WaitForSeconds(2);
+                CloseDialog();
+            }
+        }
     }
 
+    private void DialogAfterOptions(int index)
+    {
+        int i = 0;
+        foreach (Transform option in _optionsContainer)
+        {
+            int j = i;
+            if (option.TryGetComponent(out Button optionButton))
+            {
+                optionButton.onClick.RemoveListener(() => DialogAfterOptions(j));
+            }
+            i++;
+        }
+
+        SetOptionsActive(false);
+        CloseDialog();
+        DialogStart(_actualLine.Options[index].NextDialog.Lines, _currentNPC);
+    }
+
+    private void SetOptionsActive(bool state)
+    {
+        _optionsContainer.gameObject.SetActive(state);
+    }
+    
     private void OnDestroy() 
     {
+        int index = 0;
+        foreach (Transform option in _optionsContainer)
+        {
+            int j = index;
+
+            if (option.TryGetComponent(out Button optionButton))
+                optionButton.onClick.RemoveListener(() => DialogAfterOptions(j));
+
+            index++;
+        }
+
+        if (_npcsParent == null) return;
+
         foreach(Transform npc in _npcsParent)
         {
-            if (npc != null && npc.TryGetComponent(out NPC npcChar))
+            if (npc.TryGetComponent(out NPC npcChar))
             {
                 npcChar.OnPlayerInteracted -= DialogStart;
             }

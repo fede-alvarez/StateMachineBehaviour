@@ -31,13 +31,21 @@ public class NPC : MonoBehaviour
         if (_isNear && Input.GetKeyDown(KeyCode.E))
         {
             if (_dialogsSO != null)
+            {
                 OnPlayerInteracted?.Invoke(_dialogsSO.Lines, this);
-            else
+                GameManager.GetInstance.GetDialogManager.OnDialogEnded += OnDialogEnded;
+            }else{
                 Debug.LogError("Dialog scriptable not assigned!");
+            }
             
             _isActive = false;
             _keyPrompt.SetActive(false);
         }
+    }
+
+    private void OnDialogEnded()
+    {
+        print("ENDED");
     }
 
     public void SetDialogScriptable(Dialogs dialog)
@@ -63,5 +71,10 @@ public class NPC : MonoBehaviour
     public bool IsActive {
         get { return _isActive; }
         set { _isActive = value; }
+    }
+
+    private void OnDestroy() 
+    {
+        GameManager.GetInstance.GetDialogManager.OnDialogEnded -= OnDialogEnded;    
     }
 }
